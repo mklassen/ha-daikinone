@@ -80,6 +80,8 @@ class DaikinOutdoorUnit(DaikinEquipment):
     compressor_speed_current: int
     outdoor_fan_target_rpm: int
     outdoor_fan_rpm: int
+    outdoor_humidity: int
+    outdoor_temperature: Temperature
     suction_pressure_psi: int
     eev_opening_percent: int
     reversing_valve: DaikinOutdoorUnitReversingValveStatus
@@ -385,6 +387,8 @@ class DaikinOne:
                 crank_case_heater=DaikinOutdoorUnitHeaterStatus(payload.data["ctCrankCaseHeaterOnOff"]),
                 drain_pan_heater=DaikinOutdoorUnitHeaterStatus(payload.data["ctDrainPanHeaterOnOff"]),
                 preheat_heater=DaikinOutdoorUnitHeaterStatus(payload.data["ctPreHeatOnOff"]),
+                outdoor_temperature=Temperature.from_celsius(payload.data["tempOutdoor"]),
+                outdoor_humidity=payload.data["humOutdoor"],
             )
 
         # eev coil

@@ -81,7 +81,7 @@ async def async_setup_entry(
                     has_entity_name=True,
                     state_class=SensorStateClass.MEASUREMENT,
                     device_class=SensorDeviceClass.HUMIDITY,
-                    native_unit_of_measurement="%",
+                    native_unit_of_measurement=PERCENTAGE,
                     icon="mdi:water-percent",
                 ),
                 data=data,
@@ -565,6 +565,34 @@ async def async_setup_entry(
                             data=data,
                             device=equipment,
                             attribute=lambda e: e.fan_motor_amps,
+                        ),
+                        DaikinOneEquipmentSensor(
+                            description=SensorEntityDescription(
+                                key="outdoor_temperature",
+                                name="Outdoor Temperature",
+                                has_entity_name=True,
+                                state_class=SensorStateClass.MEASUREMENT,
+                                device_class=SensorDeviceClass.TEMPERATURE,
+                                native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+                                icon="mdi:thermometer",
+                            ),
+                            data=data,
+                            device=equipment,
+                            attribute=lambda e: e.outdoor_temperature.celsius,
+                        ),
+                        DaikinOneEquipmentSensor(
+                            description=SensorEntityDescription(
+                                key="outdoor_humidity",
+                                name="Outdoor Humidity",
+                                has_entity_name=True,
+                                state_class=SensorStateClass.MEASUREMENT,
+                                device_class=SensorDeviceClass.HUMIDITY,
+                                native_unit_of_measurement=PERCENTAGE,
+                                icon="mdi:water-percent",
+                            ),
+                            data=data,
+                            device=equipment,
+                            attribute=lambda e: e.outdoor_humidity,
                         ),
                     ]
 
