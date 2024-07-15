@@ -397,7 +397,14 @@ class DaikinOne:
             aqi=payload.data["aqOutdoorValue"],
             aqi_summary_level=payload.data["aqOutdoorLevel"],
             particles_microgram_m3=payload.data["aqOutdoorParticles"],
-            ozone_microgram_m3=payload.data["aqOutdoorOzone"],
+            # µg/m³ = ppb * M * P / (R * T)
+            # Molecular weight of ozone (O3) M = 15.999 * 3.0 g / mol
+            # Ideal gas constant R = 0.0821 L * atm / (mol * K)
+            # Temperature T in Kelvin
+            # Pressure P is assumed to be 1 atm
+            #ozone_microgram_m3=round(payload.data["aqOutdoorOzone"] * 15.999 * 3.0 * 1.0 / (
+            #        0.0821 * Temperature.from_celsius(payload.data["tempOutdoor"]).kelvin), 0),
+            ozone_microgram_m3=payload.data["aqOutdoorOzone"]
         )
 
     def __map_air_quality_indoor(self, payload: DaikinDeviceDataResponse) -> DaikinOneAirQualitySensorIndoor | None:
