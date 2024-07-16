@@ -1,6 +1,7 @@
 import copy
 import json
 import logging
+import dataclasses
 from datetime import timedelta
 from enum import Enum, auto
 from urllib.parse import urljoin
@@ -145,9 +146,30 @@ class DaikinThermostatStatus(Enum):
     IDLE = 5
 
 
+class DaikinThermostatAction(Enum):
+    SET_TEMPERATURE = 0
+
+
+@dataclass
+class DaikinThermostatSchedulePart:
+    heat_set_point: Temperature
+    cool_set_point: Temperature
+    label: str
+    action: DaikinThermostatAction
+    enabled: bool
+    time: timedelta
+
+
 @dataclass
 class DaikinThermostatSchedule:
     enabled: bool
+    monday: list[DaikinThermostatSchedulePart] = dataclasses.field(default_factory=list)
+    tuesday: list[DaikinThermostatSchedulePart] = dataclasses.field(default_factory=list)
+    wednesday: list[DaikinThermostatSchedulePart] = dataclasses.field(default_factory=list)
+    thursday: list[DaikinThermostatSchedulePart] = dataclasses.field(default_factory=list)
+    friday: list[DaikinThermostatSchedulePart] = dataclasses.field(default_factory=list)
+    saturday: list[DaikinThermostatSchedulePart] = dataclasses.field(default_factory=list)
+    sunday: list[DaikinThermostatSchedulePart] = dataclasses.field(default_factory=list)
 
 
 @dataclass
@@ -284,6 +306,26 @@ class DaikinOne:
             set_point_cool_max=Temperature.from_celsius(payload.data["EquipProtocolMaxCoolSetpoint"]),
             equipment=self.__map_equipment(payload),
         )
+
+        # Extract the schedule
+        schedule = thermostat.schedule
+        for data, day in ((schedule.monday, "Mon"),
+                          (schedule.tuesday, "Tue"),
+                          (schedule.wednesday, "Wed"),
+                          (schedule.thursday, "Thu"),
+                          (schedule.friday, "Fri"),
+                          (schedule.saturday, "Sat"),
+                          (schedule.sunday, "Sun"),
+                          ):
+            for index in range(1, 7):
+                data.append(DaikinThermostatSchedulePart(
+                    heat_set_point=Temperature.from_celsius(payload.data[f"sched{day}Part{index}hsp"]),
+                    cool_set_point=Temperature.from_celsius(payload.data[f"sched{day}Part{index}csp"]),
+                    label=payload.data[f"sched{day}Part{index}Label"],
+                    action=DaikinThermostatAction(payload.data[f"sched{day}Part{index}Action"]),
+                    time=timedelta(minutes=15 * payload.data[f"sched{day}Part{index}Time"]),
+                    enabled=payload.data[f"sched{day}Part{index}Enabled"],
+                ))
 
         return thermostat
 
