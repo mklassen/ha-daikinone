@@ -82,6 +82,11 @@ class DaikinOutdoorUnit(DaikinEquipment):
     outdoor_fan_rpm: int
     outdoor_humidity: int
     outdoor_temperature: Temperature
+    outdoor_air_quality_index: int
+    outdoor_air_quality_particles: int
+    outdoor_air_quality_ozone: float
+    outdoor_air_quality_level: int
+    outdoor_air_quality_available: bool
     suction_pressure_psi: int
     eev_opening_percent: int
     reversing_valve: DaikinOutdoorUnitReversingValveStatus
@@ -389,6 +394,16 @@ class DaikinOne:
                 preheat_heater=DaikinOutdoorUnitHeaterStatus(payload.data["ctPreHeatOnOff"]),
                 outdoor_temperature=Temperature.from_celsius(payload.data["tempOutdoor"]),
                 outdoor_humidity=payload.data["humOutdoor"],
+                outdoor_air_quality_index=payload.data["aqOutdoorValue"],
+                outdoor_air_quality_particles=payload.data["aqOutdoorParticles"],
+                # µg/m³ = ppb * M * P / (R * T)
+                # Molecular weight of ozone (O3) M = 15.999 * 3.0 g / mol
+                # Ideal gas constant R = 0.0821 L * atm / (mol * K)
+                # Temperature T in Kelvin
+                # Pressure P is assumed to be 1 atm
+                outdoor_air_quality_ozone=round(payload.data["aqOutdoorOzone"] * 15.999 * 3.0 * 1.0 / (0.0821 * Temperature.from_celsius(payload.data["tempOutdoor"]).kelvin), 1),
+                outdoor_air_quality_level=payload.data["aqOutdoorLevel"],
+                outdoor_air_quality_available=payload.data["aqOutdoorAvailable"],
             )
 
         # eev coil

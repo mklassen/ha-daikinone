@@ -11,6 +11,7 @@ from homeassistant.const import (
     UnitOfTime,
     UnitOfPressure,
     UnitOfElectricCurrent,
+    CONCENTRATION_MICROGRAMS_PER_CUBIC_METER,
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import DeviceInfo
@@ -595,6 +596,65 @@ async def async_setup_entry(
                             attribute=lambda e: e.outdoor_humidity,
                         ),
                     ]
+
+                    if equipment.outdoor_air_quality_available:
+                        entities.extend([
+                            DaikinOneEquipmentSensor(
+                                description=SensorEntityDescription(
+                                    key="outdoor_air_quality_index",
+                                    name="Outdoor Air Quality Index",
+                                    has_entity_name=True,
+                                    state_class=SensorStateClass.MEASUREMENT,
+                                    device_class=SensorDeviceClass.AQI,
+                                    icon="mdi:air-filter",
+                                ),
+                                data=data,
+                                device=equipment,
+                                attribute=lambda e: e.outdoor_air_quality_index,
+                            ),
+                            DaikinOneEquipmentSensor(
+                                description=SensorEntityDescription(
+                                    key="outdoor_air_quality_particles",
+                                    name="Outdoor Air Quality Particles",
+                                    has_entity_name=True,
+                                    state_class=SensorStateClass.MEASUREMENT,
+                                    device_class=SensorDeviceClass.PM25,
+                                    native_unit_of_measurement=CONCENTRATION_MICROGRAMS_PER_CUBIC_METER,
+                                    icon="mdi:air-filter",
+                                ),
+                                data=data,
+                                device=equipment,
+                                attribute=lambda e: e.outdoor_air_quality_particles,
+                            ),
+                            DaikinOneEquipmentSensor(
+                                description=SensorEntityDescription(
+                                    key="outdoor_air_quality_ozone",
+                                    name="Outdoor Air Quality Ozone",
+                                    has_entity_name=True,
+                                    state_class=SensorStateClass.MEASUREMENT,
+                                    device_class=SensorDeviceClass.OZONE,
+                                    native_unit_of_measurement=CONCENTRATION_MICROGRAMS_PER_CUBIC_METER,
+                                    icon="mdi:molecule",
+                                ),
+                                data=data,
+                                device=equipment,
+                                attribute=lambda e: e.outdoor_air_quality_ozone,
+                            ),
+                            DaikinOneEquipmentSensor(
+                                description=SensorEntityDescription(
+                                    key="outdoor_air_quality_level",
+                                    name="Outdoor Air Quality Level",
+                                    has_entity_name=True,
+                                    state_class=SensorStateClass.MEASUREMENT,
+                                    device_class=SensorDeviceClass.ENUM,
+                                    native_unit_of_measurement=None,
+                                    icon="mdi:air-filter",
+                                ),
+                                data=data,
+                                device=equipment,
+                                attribute=lambda e: e.outdoor_air_quality_level,
+                            ),
+                        ])
 
                     # optional outdoor unit sensors
                     if equipment.reversing_valve is not DaikinOutdoorUnitReversingValveStatus.UNKNOWN:
