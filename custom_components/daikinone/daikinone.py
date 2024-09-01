@@ -356,7 +356,7 @@ class DaikinOne:
                 cool_demand_current_percent=None,
                 humidification_demand_requested_percent=payload.data["ctAHHumidificationRequestedDemand"] / 2,
                 dehumidification_demand_requested_percent=None,
-                power_usage=payload.data["ctIndoorPower"] / 10,
+                power_usage=payload.data["ctIndoorPower"] if payload.data["equipmentStatus"] != 5 else 0.0,
             )
 
         # furnace
@@ -383,7 +383,7 @@ class DaikinOne:
                 cool_demand_current_percent=payload.data["ctIFCCurrentCoolActualStatus"] / 2,
                 humidification_demand_requested_percent=payload.data["ctIFCHumRequestedDemandPercent"] / 2,
                 dehumidification_demand_requested_percent=payload.data["ctIFCDehumRequestedDemandPercent"] / 2,
-                power_usage=payload.data["ctIndoorPower"] / 10,
+                power_usage=payload.data["ctIndoorPower"] if payload.data["equipmentStatus"] != 5 else 0.0,
             )
 
         # outdoor unit
