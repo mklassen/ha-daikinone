@@ -538,6 +538,11 @@ class DaikinOne:
                     self.__auth.authenticated = False
                     return False
 
+                # OAuth allows refreshToken to be single use. A new one is sent with the response.
+                refresh_token = payload.get("refreshToken", None)
+                if refresh_token is not None:
+                   self.__auth.refresh_token = refresh_token
+
                 # save token
                 log.info("Refreshed access token")
                 self.__auth.access_token = access_token
