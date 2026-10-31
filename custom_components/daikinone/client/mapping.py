@@ -1,6 +1,7 @@
 """Pure functions that turn a Daikin device-data payload into domain models."""
 
 import logging
+from datetime import timedelta
 
 from custom_components.daikinone.client import fields as f
 from custom_components.daikinone.client.models import (
@@ -19,6 +20,9 @@ from custom_components.daikinone.client.models import (
     DaikinThermostatMode,
     DaikinThermostatSchedule,
     DaikinThermostatStatus,
+    DaikinThermostatSchedulePart,
+    DaikinThermostatAction,
+    Temperature,
 )
 from custom_components.daikinone.client.wire import (
     DaikinDeviceDataResponse,
@@ -38,6 +42,26 @@ def map_thermostat(payload: DaikinDeviceDataResponse) -> DaikinThermostat:
     if payload.data.get("ctSystemCapEmergencyHeat"):
         capabilities.add(DaikinThermostatCapability.EMERGENCY_HEAT)
 
+    # Extract the schedule
+    schedule = DaikinThermostatSchedule(enabled=payload.data["schedEnabled"]),
+    for data, day in ((schedule.monday, "Mon"),
+                      (schedule.tuesday, "Tue"),
+                      (schedule.wednesday, "Wed"),
+                      (schedule.thursday, "Thu"),
+                      (schedule.friday, "Fri"),
+                      (schedule.saturday, "Sat"),
+                      (schedule.sunday, "Sun"),
+                      ):
+        for index in range(1, 7):
+            data.append(DaikinThermostatSchedulePart(
+                heat_set_point=Temperature.from_celsius(payload.data[f"sched{day}Part{index}hsp"]),
+                cool_set_point=Temperature.from_celsius(payload.data[f"sched{day}Part{index}csp"]),
+                label=payload.data[f"sched{day}Part{index}Label"],
+                action=DaikinThermostatAction(payload.data[f"sched{day}Part{index}Action"]),
+                time=timedelta(minutes=15 * payload.data[f"sched{day}Part{index}Time"]),
+                enabled=payload.data[f"sched{day}Part{index}Enabled"],
+            ))
+
     return DaikinThermostat(
         id=payload.id,
         location_id=payload.locationId,
@@ -50,7 +74,7 @@ def map_thermostat(payload: DaikinDeviceDataResponse) -> DaikinThermostat:
         status=DaikinThermostatStatus(payload.data["equipmentStatus"]),
         fan_mode=DaikinThermostatFanMode(payload.data["fanCirculate"]),
         fan_speed=DaikinThermostatFanSpeed(payload.data["fanCirculateSpeed"]),
-        schedule=DaikinThermostatSchedule(enabled=payload.data["schedEnabled"]),
+        schedule=schedule,
         indoor_temperature=read(payload.data, f.F_TEMP_INDOOR),
         indoor_humidity=read(payload.data, f.F_HUM_INDOOR),
         set_point_heat=read(payload.data, f.F_SETPOINT_HEAT),

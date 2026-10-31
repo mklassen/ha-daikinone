@@ -3,6 +3,7 @@
 from datetime import timedelta
 from enum import Enum, auto
 
+from dataclasses import field
 from pydantic.dataclasses import dataclass
 
 from custom_components.daikinone.utils import Temperature
@@ -168,9 +169,30 @@ class DaikinThermostatStatus(Enum):
         return cls.UNKNOWN
 
 
+class DaikinThermostatAction(Enum):
+    SET_TEMPERATURE = 0
+
+
+@dataclass
+class DaikinThermostatSchedulePart:
+    heat_set_point: Temperature
+    cool_set_point: Temperature
+    label: str
+    action: DaikinThermostatAction
+    enabled: bool
+    time: timedelta
+
+
 @dataclass
 class DaikinThermostatSchedule:
     enabled: bool
+    monday: list[DaikinThermostatSchedulePart] = field(default_factory=list)
+    tuesday: list[DaikinThermostatSchedulePart] = field(default_factory=list)
+    wednesday: list[DaikinThermostatSchedulePart] = field(default_factory=list)
+    thursday: list[DaikinThermostatSchedulePart] = field(default_factory=list)
+    friday: list[DaikinThermostatSchedulePart] = field(default_factory=list)
+    saturday: list[DaikinThermostatSchedulePart] = field(default_factory=list)
+    sunday: list[DaikinThermostatSchedulePart] = field(default_factory=list)
 
 
 class DaikinThermostatFanMode(Enum):
