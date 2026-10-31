@@ -92,8 +92,8 @@ F_OD_COMPRESSOR_RUNTIME = RuntimeField("ctOutdoorCompressorRunTime")
 
 F_OD_HEAT_MAX_RPS = IntField("ctOutdoorHeatMaxRPS", Sentinel.U16)
 
-F_OD_COMPRESSOR_SPEED_TARGET = IntField("ctTargetCompressorspeed", Sentinel.U8)
-F_OD_COMPRESSOR_SPEED_CURRENT = IntField("ctCurrentCompressorRPS", Sentinel.U16)
+F_OD_COMPRESSOR_SPEED_TARGET = IntField("ctTargetCompressorspeed", Sentinel.U8, 60)
+F_OD_COMPRESSOR_SPEED_CURRENT = IntField("ctCurrentCompressorRPS", Sentinel.U16, 60)
 F_OD_FAN_TARGET_RPM = IntField("ctTargetODFanRPM", Sentinel.U8, 10)
 F_OD_FAN_RPM = IntField("ctOutdoorFanRPM", Sentinel.U16)
 F_OD_SUCTION_PRESSURE = IntField("ctOutdoorSuctionPressure", Sentinel.I16)
