@@ -67,6 +67,28 @@ class DaikinOne:
             body={"mode": mode.value},
         )
 
+    async def set_thermostat_humidity_set_points(
+        self,
+        thermostat_id: str,
+        humidify: int | None = None,
+        dehumidify: int | None = None,
+    ) -> None:
+        """Set thermostat humidity setpoints"""
+        if humidify is None and dehumidify is None:
+            raise ValueError("At least one of humidify or dehumidify must be set")
+
+        payload: dict[str, Any] = {}
+        if humidify is not None:
+            payload["humSP"] = humidify
+        if dehumidify is not None:
+            payload["dehumSP"] = dehumidify
+
+        await self.__req(
+            url=f"{DAIKIN_API_URL_DEVICE_DATA}/{thermostat_id}",
+            method="PUT",
+            body=payload,
+        )
+
     async def set_thermostat_home_set_points(
         self,
         thermostat_id: str,

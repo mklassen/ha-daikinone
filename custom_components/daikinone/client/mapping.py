@@ -41,6 +41,8 @@ def map_thermostat(payload: DaikinDeviceDataResponse) -> DaikinThermostat:
         capabilities.add(DaikinThermostatCapability.COOL)
     if payload.data.get("ctSystemCapEmergencyHeat"):
         capabilities.add(DaikinThermostatCapability.EMERGENCY_HEAT)
+    if payload.data["ctSystemCapHumidification"]:
+        capabilities.add(DaikinThermostatCapability.HUMIDIFY)
 
     # Extract the schedule
     schedule = DaikinThermostatSchedule(enabled=payload.data["schedEnabled"]),
@@ -83,6 +85,8 @@ def map_thermostat(payload: DaikinDeviceDataResponse) -> DaikinThermostat:
         set_point_cool=read(payload.data, f.F_SETPOINT_COOL),
         set_point_cool_min=read(payload.data, f.F_SETPOINT_COOL_MIN),
         set_point_cool_max=read(payload.data, f.F_SETPOINT_COOL_MAX),
+        set_point_humidify=read(payload.data, f.F_SETPOINT_HUMIDIFY),
+        set_point_dehumidify=read(payload.data, f.F_SETPOINT_DEHUMIDIFY),
         outdoor_temperature=read(payload.data, f.F_TEMP_OUTDOOR),
         outdoor_humidity=read(payload.data, f.F_HUM_OUTDOOR),
         air_quality_outdoor=map_air_quality_outdoor(payload),

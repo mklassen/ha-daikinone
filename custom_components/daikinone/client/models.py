@@ -141,6 +141,7 @@ class DaikinThermostatCapability(Enum):
     HEAT = auto()
     COOL = auto()
     EMERGENCY_HEAT = auto()
+    HUMIDIFY = auto()
 
 
 class DaikinThermostatMode(Enum):
@@ -167,6 +168,13 @@ class DaikinThermostatStatus(Enum):
     @classmethod
     def _missing_(cls, value: object) -> "DaikinThermostatStatus":
         return cls.UNKNOWN
+
+
+class DaikinHumidityLimit(Enum):
+    MAX = 75
+    MIN = 1
+    STEP = 5
+    RANGE_MIN = 10
 
 
 class DaikinThermostatAction(Enum):
@@ -235,6 +243,8 @@ class DaikinThermostat(DaikinDevice):
     set_point_cool: Temperature | None
     set_point_cool_min: Temperature | None
     set_point_cool_max: Temperature | None
+    set_point_humidify: int | None
+    set_point_dehumidify: int | None
     outdoor_temperature: Temperature | None
     outdoor_humidity: int | None
     air_quality_outdoor: DaikinOneAirQualitySensorOutdoor | None
