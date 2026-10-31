@@ -121,6 +121,8 @@ def _map_air_handler(payload: DaikinDeviceDataResponse) -> DaikinIndoorUnit | No
         return None
     eid = f"{model}-{serial}"
 
+    status = DaikinThermostatStatus(payload.data["equipmentStatus"])
+
     return DaikinIndoorUnit(
         id=eid,
         thermostat_id=payload.id,
@@ -138,7 +140,7 @@ def _map_air_handler(payload: DaikinDeviceDataResponse) -> DaikinIndoorUnit | No
         cool_demand_current_percent=None,
         humidification_demand_requested_percent=read(payload.data, f.F_AH_HUM_REQ_DEMAND),
         dehumidification_demand_requested_percent=None,
-        power_usage=read(payload.data, f.F_INDOOR_POWER),
+        power_usage=read(payload.data, f.F_INDOOR_POWER) if status != DaikinThermostatStatus.IDLE else 0.0,
     )
 
 
@@ -155,6 +157,8 @@ def _map_furnace(payload: DaikinDeviceDataResponse) -> DaikinIndoorUnit | None:
         )
         return None
     eid = f"{model}-{serial}"
+
+    status = DaikinThermostatStatus(payload.data["equipmentStatus"])
 
     return DaikinIndoorUnit(
         id=eid,
@@ -173,7 +177,7 @@ def _map_furnace(payload: DaikinDeviceDataResponse) -> DaikinIndoorUnit | None:
         cool_demand_current_percent=read(payload.data, f.F_IFC_COOL_CUR_DEMAND),
         humidification_demand_requested_percent=read(payload.data, f.F_IFC_HUM_REQ_DEMAND),
         dehumidification_demand_requested_percent=read(payload.data, f.F_IFC_DEHUM_REQ_DEMAND),
-        power_usage=read(payload.data, f.F_INDOOR_POWER),
+        power_usage=read(payload.data, f.F_INDOOR_POWER) if status != DaikinThermostatStatus.IDLE else 0.0,
     )
 
 
